@@ -6,6 +6,13 @@
   <title>Hello World</title>
 </head>
 <script src="pixi/pixi.min.js"></script>
+<script src="util/scaleToWindow.js"></script>
+<style>
+  * {
+    padding: 0;
+    margin: 0
+  }
+</style>
 
 <body>
   <script type="text/javascript">
@@ -17,11 +24,41 @@
     PIXI.utils.sayHello(type)
 
     //Create a Pixi Application
-    let app = new PIXI.Application({ width: 256, height: 256 });
+    let app = new PIXI.Application({
+      width: 256,         // default: 800
+      height: 256,        // default: 600
+      antialias: true,    // default: false
+      transparent: false, // default: false
+      resolution: 1       // default: 1
+    }
+    );
+    app.renderer.view.style.position = "absolute";
+    app.renderer.view.style.display = "block";
+    app.renderer.autoResize = true;
+    app.renderer.resize(window.innerWidth, window.innerHeight);
 
     //Add the canvas that Pixi automatically created for you to the HTML document
     document.body.appendChild(app.view);
 
+    let myScale = 1;
+    let resizeFunc = () => {
+      myScale = scaleToWindow(app.renderer.view);
+    };
+    window.addEventListener("resize", resizeFunc);
+    resizeFunc();
+
+    if (true) {
+      PIXI.loader
+        .add("images/cat.png")
+        .load(setup);
+
+      function setup() {
+        let cat = new PIXI.Sprite(
+          PIXI.loader.resources["images/cat.png"].texture
+        );
+        app.stage.addChild(cat);
+      }
+    }
   </script>
 </body>
 
