@@ -17,6 +17,9 @@
 <body>
   <script type="text/javascript">
     let type = "WebGL"
+    const loader = PIXI.loader;
+    const TextureCache = PIXI.utils.TextureCache;
+
     if (!PIXI.utils.isWebGLSupported()) {
       type = "canvas"
     }
@@ -32,35 +35,65 @@
       resolution: 1       // default: 1
     }
     );
-    app.renderer.view.style.position = "absolute";
-    app.renderer.view.style.display = "block";
-    app.renderer.autoResize = true;
 
-    //Add the canvas that Pixi automatically created for you to the HTML document
-    document.body.appendChild(app.view);
+    if (true) { // resize
+      app.renderer.view.style.position = "absolute";
+      app.renderer.view.style.display = "block";
+      app.renderer.autoResize = true;
 
-    let myScale = 1;
-    let resizeFunc = () => {
-      myScale = scaleToWindow(app.renderer.view);
-    };
-    window.addEventListener("resize", resizeFunc);
-    resizeFunc();
+      //Add the canvas that Pixi automatically created for you to the HTML document
+      document.body.appendChild(app.view);
 
-    if (true) {
-      PIXI.loader
-        .add("images/cat.png")
-        .load(setup);
-
-      function setup() {
-        let cat = new PIXI.Sprite(
-          PIXI.loader.resources["images/cat.png"].texture
-        );
-        cat.x = 96;
-        cat.y = 96;
-
-        app.stage.addChild(cat);
-      }
+      let myScale = 1;
+      let resizeFunc = () => {
+        myScale = scaleToWindow(app.renderer.view);
+      };
+      window.addEventListener("resize", resizeFunc);
+      resizeFunc();
     }
+
+    if (true) { // sprites
+      loader
+        .add([
+          "images/cat.png",
+          "images/tileset.png",
+        ])
+        .load(() => {
+          if (true) { // cat
+            let texture = TextureCache["images/cat.png"];
+            let cat = new PIXI.Sprite(texture);
+            cat.x = 96;
+            cat.y = 96;
+
+            app.stage.addChild(cat);
+          }
+          if (true) { // rocket
+            //Create the `tileset` sprite from the texture
+            let texture = TextureCache["images/tileset.png"];
+            //Create a rectangle object that defines the position and
+            //size of the sub-image you want to extract from the texture
+            //(`Rectangle` is an alias for `PIXI.Rectangle`)
+            let rectangle = new PIXI.Rectangle(192, 128, 64, 64);
+
+            //Tell the texture to use that rectangular section
+            texture.frame = rectangle;
+
+            //Create the sprite from the texture
+            let rocket = new PIXI.Sprite(texture);
+
+            //Position the rocket sprite on the canvas
+            rocket.x = 32;
+            rocket.y = 32;
+
+            //Add the rocket to the stage
+            app.stage.addChild(rocket);
+
+            //Render the stage   
+            app.renderer.render(app.stage);
+          }
+        });
+    }
+
   </script>
 </body>
 
