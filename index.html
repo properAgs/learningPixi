@@ -16,97 +16,251 @@
 
 <body>
   <script type="text/javascript">
-    let type = "WebGL"
     const loader = PIXI.loader;
     const TextureCache = PIXI.utils.TextureCache;
     const Sprite = PIXI.Sprite;
+    const ParticleContainer = PIXI.particles.ParticleContainer;
+    const Graphics = PIXI.Graphics;
+    const Text = PIXI.Text;
+    const TextStyle = PIXI.TextStyle;
+    const BitmapText = PIXI.extras.BitmapText;
 
-    if (!PIXI.utils.isWebGLSupported()) {
-      type = "canvas"
-    }
+    let init;
+    if (true) {
+      window.WebFontConfig = {
+        google: {
+          families: ['Snippet', 'Arvo:700italic', 'Podkova:700']
+        },
 
-    PIXI.utils.sayHello(type)
-
-    //Create a Pixi Application
-    let app = new PIXI.Application({
-      width: 600,         // default: 800
-      height: 600,        // default: 600
-      antialias: true,    // default: false
-      transparent: false, // default: false
-      resolution: 1       // default: 1
-    }
-    );
-
-    if (true) { // resize
-      app.renderer.view.style.position = "absolute";
-      app.renderer.view.style.display = "block";
-      app.renderer.autoResize = true;
-
-      //Add the canvas that Pixi automatically created for you to the HTML document
-      document.body.appendChild(app.view);
-
-      let myScale = 1;
-      let resizeFunc = () => {
-        myScale = scaleToWindow(app.renderer.view);
+        active: () => init()
       };
-      window.addEventListener("resize", resizeFunc);
-      resizeFunc();
+
+      // loads font but blocks the game!
+      // https://pixijs.io/examples-v4/#/text/webfont.js
+      (function () {
+        var wf = document.createElement('script');
+        wf.src = (document.location.protocol === 'https:' ? 'https' : 'http')
+          + '://ajax.googleapis.com/ajax/libs/webfont/1/webfont.js';
+        wf.type = 'text/javascript';
+        wf.async = 'true';
+        var s = document.getElementsByTagName('script')[0];
+        s.parentNode.insertBefore(wf, s);
+      }());
     }
 
-    if (true) { // sprites
-      let sprites = [];
-      loader
-        .add([
-          "images/cat.png",
-          "images/tileset.png",
-          "images/treasureHunter.json",
-        ])
-        .load(() => {
-          if (true) { // cat
-            let texture = TextureCache["images/cat.png"];
-            let sprite = new Sprite(texture);
-            sprite.x = 96;
-            sprite.y = 96;
+    init = () => {
+      //Create a Pixi Application
+      let app = new PIXI.Application({
+        width: 600,         // default: 800
+        height: 600,        // default: 600
+        antialias: true,    // default: false
+        transparent: false, // default: false
+        resolution: 1       // default: 1
+      }
+      );
 
-            app.ticker.add(delta => sprite.x += 0.5 * delta);
-            sprites.push(sprite);
-          }
-          if (true) { // rocket
-            //Create the `tileset` sprite from the texture
-            let texture = TextureCache["images/tileset.png"];
-            //Create a rectangle object that defines the position and
-            //size of the sub-image you want to extract from the texture
-            //(`Rectangle` is an alias for `PIXI.Rectangle`)
-            let rectangle = new PIXI.Rectangle(192, 128, 64, 64);
+      if (true) { // resize
+        app.renderer.view.style.position = "absolute";
+        app.renderer.view.style.display = "block";
+        app.renderer.autoResize = true;
 
-            //Tell the texture to use that rectangular section
-            texture.frame = rectangle;
+        //Add the canvas that Pixi automatically created for you to the HTML document
+        document.body.appendChild(app.view);
 
-            //Create the sprite from the texture
-            let sprite = new Sprite(texture);
+        let myScale = 1;
+        let resizeFunc = () => {
+          myScale = scaleToWindow(app.renderer.view);
+        };
+        window.addEventListener("resize", resizeFunc);
+        resizeFunc();
+      }
 
-            //Position the rocket sprite on the canvas
-            sprite.x = 32;
-            sprite.y = 32;
+      if (true) { // sprites
+        let sprites = [];
+        loader
+          .add([
+            "images/cat.png",
+            "images/tileset.png",
+            "images/treasureHunter.json",
+            {
+              name: 'desyrel',
+              url: 'bitmapText/desyrel.xml'
+            },
+          ])
+          .load(() => {
+            if (true) { // cat
+              let texture = TextureCache["images/cat.png"];
+              let sprite = new Sprite(texture);
+              sprite.x = 96;
+              sprite.y = 96;
 
-            //Add the rocket to the stage
-            sprites.push(sprite);
-          }
-          if (true) {
-            let texture = TextureCache["explorer.png"];
-            let sprite = new Sprite(texture);
-            // app.stage.addChild(sprite);
-            sprites.push(sprite);
-          }
-          if (true) // container
-          {
-            let subContainer = new PIXI.Container();
-            subContainer.addChild(sprites[0]);
-            subContainer.addChild(sprites[1]);
-            subContainer.addChild(sprites[2]);
-            app.stage.addChild(subContainer);
-          }
-        });
+              app.ticker.add(delta => sprite.x += 0.5 * delta);
+              sprites.push(sprite);
+            }
+            if (true) { // rocket
+              let texture = TextureCache["images/tileset.png"];
+              let rectangle = new PIXI.Rectangle(192, 128, 64, 64);
+
+              texture.frame = rectangle;
+
+              let sprite = new Sprite(texture);
+
+              sprite.x = 32;
+              sprite.y = 32;
+
+              sprites.push(sprite);
+            }
+            if (true) {
+              let texture = TextureCache["explorer.png"];
+              let sprite = new Sprite(texture);
+              sprites.push(sprite);
+            }
+            if (true) // container
+            {
+              let subContainer = new PIXI.Container();
+              subContainer.addChild(sprites[0]);
+              subContainer.addChild(sprites[1]);
+              subContainer.addChild(sprites[2]);
+              subContainer.position.set(64, 64);
+              app.ticker.add(delta => subContainer.y += 0.5 * delta);
+              app.stage.addChild(subContainer);
+            }
+
+            if (true) { // Particle Container
+              const max = 50;
+              const particleContainer = new ParticleContainer(max,
+                {
+                  rotation: true,
+                  alphaAndtint: true,
+                  scale: true,
+                  uvs: true
+                }
+              );
+              let texture = TextureCache["treasure.png"];
+              for (let i = 0; i < max; ++i) {
+                let sprite = new Sprite(texture);
+                particleContainer.addChild(sprite);
+                const factor = 2;
+                const speed1 = Math.random() * factor - factor / 2;
+                const speed2 = Math.random() * factor - factor / 2;
+                sprite.x = app.renderer.width / 2;
+                sprite.y = app.renderer.height / 2;
+
+                app.ticker.add(delta => {
+                  sprite.x += speed1 * delta
+                  sprite.y += speed2 * delta
+                });
+              }
+
+              app.stage.addChild(particleContainer);
+            }
+
+            if (true) { // Primitives drawRect
+              let graphic = new Graphics();
+              graphic.beginFill(0x66CCFF);
+              graphic.lineStyle(4, 0xFF3300, 1);
+              graphic.drawRect(50, 50, 100, 200);
+              graphic.endFill();
+              graphic.scale.set(0.4);
+              app.stage.addChild(graphic);
+            }
+
+
+            if (true) { // Primitives drawCircle
+              let graphic = new Graphics();
+              graphic.beginFill(0x9966FF);
+              graphic.drawCircle(0, 0, 32);
+              graphic.endFill();
+              graphic.x = 164;
+              graphic.y = 130;
+              app.stage.addChild(graphic);
+            }
+
+            if (true) { // Primitives drawEllipse
+              let graphic = new Graphics();
+              graphic.beginFill(0xFFFF00);
+              graphic.drawEllipse(0, 0, 50, 20);
+              graphic.endFill();
+              graphic.x = 300;
+              graphic.y = 130;
+              app.stage.addChild(graphic);
+            }
+
+            if (true) { // Primitives drawRoundedRect
+              let graphic = new Graphics();
+              graphic.lineStyle(4, 0x99CCFF, 1);
+              graphic.beginFill(0xFF9933);
+              graphic.drawRoundedRect(0, 0, 84, 36, 10)
+              graphic.endFill();
+              graphic.x = 48;
+              graphic.y = 190;
+              app.stage.addChild(graphic);
+            }
+
+            if (true) { // Primitives lineStyle
+              let graphic = new Graphics();
+              graphic.lineStyle(4, 0xFFFFFF, 1);
+              graphic.moveTo(0, 0);
+              graphic.lineTo(80, 50);
+              graphic.x = 32;
+              graphic.y = 32;
+              app.stage.addChild(graphic);
+            }
+
+            if (true) { // Primitives drawPolygon
+              let triangle = new Graphics();
+              triangle.beginFill(0x66FF33);
+
+              triangle.drawPolygon([
+                -32, 64,             //First point
+                32, 64,              //Second point
+                0, 0                 //Third point
+              ]);
+
+              triangle.endFill();
+
+              triangle.x = 180;
+              triangle.y = 22;
+
+              app.stage.addChild(triangle);
+            }
+
+            if (true) { // Webfont
+              let style = new TextStyle({
+                fontFamily: "Podkova",
+                fontSize: 36,
+                fill: "white",
+                stroke: '#ff3300',
+                strokeThickness: 4,
+                dropShadow: true,
+                dropShadowColor: "#000000",
+                dropShadowBlur: 4,
+                dropShadowAngle: Math.PI / 6,
+                dropShadowDistance: 6,
+                wordWrap: true,
+                wordWrapWidth: 100,
+                align: 'center',
+              });
+              let message = new Text("Hello Pixi!", style);
+              message.text = "Text changed!";
+
+              app.stage.addChild(message);
+            }
+
+            if (true) {  // bitmap-text
+              // https://pixijs.io/examples-v4/#/text/bitmap-text.js
+              var bitmapFontText = new BitmapText('bitmap', {
+                font: '55px Desyrel',
+                align: 'left'
+              });
+
+              bitmapFontText.x = 500;
+              bitmapFontText.y = 200;
+              bitmapFontText.scale.set(0.3);
+              app.stage.addChild(bitmapFontText);
+            }
+          });
+      }
     }
 
   </script>
