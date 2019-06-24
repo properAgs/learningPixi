@@ -25,8 +25,8 @@
     const TextStyle = PIXI.TextStyle;
     const BitmapText = PIXI.extras.BitmapText;
 
-    let init;
-    if (true) {
+    let init; // func executed once webfonts are loaded
+    if (true) { // web font loader
       window.WebFontConfig = {
         google: {
           families: ['Snippet', 'Arvo:700italic', 'Podkova:700']
@@ -75,7 +75,7 @@
         resizeFunc();
       }
 
-      if (true) { // sprites
+      if (true) { // visual objects
         let sprites = [];
         loader
           .add([
@@ -88,7 +88,7 @@
             },
           ])
           .load(() => {
-            if (true) { // cat
+            if (true) { // sprite
               let texture = TextureCache["images/cat.png"];
               let sprite = new Sprite(texture);
               sprite.x = 96;
@@ -97,7 +97,7 @@
               app.ticker.add(delta => sprite.x += 0.5 * delta);
               sprites.push(sprite);
             }
-            if (true) { // rocket
+            if (true) { // tileset
               let texture = TextureCache["images/tileset.png"];
               let rectangle = new PIXI.Rectangle(192, 128, 64, 64);
 
@@ -110,7 +110,7 @@
 
               sprites.push(sprite);
             }
-            if (true) {
+            if (true) { // tilemap
               let texture = TextureCache["explorer.png"];
               let sprite = new Sprite(texture);
               sprites.push(sprite);

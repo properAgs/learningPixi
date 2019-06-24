@@ -1,0 +1,93 @@
+
+==== LOADING IMAGES =====
+you can load images witout preloading them like so
+let base = new PIXI.BaseTexture(anyImageObject),
+    texture = new PIXI.Texture(base),
+    sprite = new PIXI.Sprite(texture);
+
+You can use BaseTexture.fromCanvas if you want to make a texture from any existing canvas element:
+let base = new PIXI.BaseTexture.fromCanvas(anyCanvasElement),
+
+If you want to change the texture the sprite is displaying, use the texture property. Set it to any Texture object, like this:
+anySprite.texture = PIXI.utils.TextureCache["anyTexture.png"];
+
+
+===== PROGRESS BAR =====
+PIXI.loader
+  .add([
+    "images/one.png",
+    "images/two.png",
+    "images/three.png"
+  ])
+  .on("progress", loadProgressHandler)
+  .load(setup);
+
+function loadProgressHandler() {
+  console.log("loading"); 
+}
+
+function setup() {
+  console.log("setup");
+}
+
+===PRINTS===
+loading
+loading
+loading
+setup
+
+
+==== PRECNETAGE LOADER ====
+PIXI.loader
+  .add([
+    "images/one.png",
+    "images/two.png",
+    "images/three.png"
+  ])
+  .on("progress", loadProgressHandler)
+  .load(setup);
+
+function loadProgressHandler(loader, resource) {
+
+  //Display the file `url` currently being loaded
+  console.log("loading: " + resource.url); 
+
+  //Display the percentage of files currently loaded
+  console.log("progress: " + loader.progress + "%"); 
+
+  //If you gave your files names as the first argument 
+  //of the `add` method, you can access them like this
+  //console.log("loading: " + resource.name);
+}
+
+function setup() {
+  console.log("All files loaded");
+}
+
+====== MASK A SPRITE WITH 'FRAME' RECT ======
+'crops the texture to the dimensions of the Rectangle'
+
+  let rectangle = new Rectangle(192, 128, 64, 64);
+
+  //Tell the texture to use that rectangular section
+  texture.frame = rectangle;
+======== LOAD ATLAS VIA NICK NAMES =====
+simply load the json file and use it using the textureCache
+========ABSULOTE POSTION! ======
+TRICK 1 (SHIT)
+parentSprite.toGlobal(childSprite.position)
+
+TRICK 2 (GREAT)
+There's one more way to calculate the global position! And, it's actually the best way, so listen up! If you want to know the distance from the top left corner of the canvas to the sprite, and don't know or care what the sprite's parent containers are, use the getGlobalPosition method. Here's how to use it to find the tiger's global position:
+tiger.getGlobalPosition().x
+tiger.getGlobalPosition().y
+
+=======CONVERT POSTION=======
+sprite.toLocal(sprite.position, anyOtherSprite)
+
+or or
+
+tiger.toLocal(tiger.position, hedgehog).x
+tiger.toLocal(tiger.position, hedgehog).y
+
+==============
